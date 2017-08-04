@@ -105,6 +105,36 @@ def searchTeam(echipa):
             lista_echipa.append(lol_transport[i])
     return lista_echipa
 
+def searchTeamShift(data_lucru, echipa):
+    schimb = ''
+    for i in range(0, len(lol_program)):
+        if lol_program[i][0] == data_lucru:
+            if echipa == 'ECHIPA 1':
+                schimb = str(lol_program[i][1])
+            elif echipa == 'ECHIPA 2':
+                schimb = str(lol_program[i][2])
+            elif echipa == 'ECHIPA 3':
+                schimb = str(lol_program[i][3])
+            elif echipa == 'ECHIPA 4':
+                schimb = str(lol_program[i][4])
+    return schimb
+
+def pontajEchipe(schimb, lista_echipa):
+    for i in range(len(lista_echipa)):
+        lista_echipa[i][2] = schimb
+
+def addTeamShiftsToLists(lista_echipa, lista_sch1, lista_sch2, lista_sch3):
+    if lista_echipa[0][2] == '1':
+       lista_sch1 += lista_echipa
+    elif lista_echipa[0][2] == '2':
+        lista_sch2 += lista_echipa
+    elif lista_echipa[0][2] == '3':
+        lista_sch3.extend(lista_echipa)
+
+def listareMatrice(lol):
+    for i in range(0, len(lol)):
+        print(lol[i])
+    input('\nApasa ENTER pentru continuare\n')
 #def writeShiftsToXLSX(shift):
     
 #corpul principal al scriptului
@@ -168,24 +198,10 @@ lista_ech2 = searchTeam('ECHIPA 2')
 lista_ech3 = searchTeam('ECHIPA 3')
 lista_ech4 = searchTeam('ECHIPA 4')
 
-#print(lista_sch1)
-#input('baga enter')
-#print(lista_sch2)
-#input('baga enter')
-#print(lista_sch3)
-#input('baga enter')
+#Listez situatia pe schimbut=ri si echipe
 print('\nsch 1: ', len(lista_sch1), '\nsch 2: ', len(lista_sch2), '\nsch 3: ', len(lista_sch3))
 print('--------------------------')
 print('Total: ', len(lista_sch1) + len(lista_sch2) + len(lista_sch3))
-
-#print(lista_ech1)
-#input('baga enter')
-#print(lista_ech2)
-#input('baga enter')
-#print(lista_ech3)
-#input('baga enter')
-#print(lista_ech4)
-#input('baga enter')
 print('\nech 1: ', len(lista_ech1), '\nech 2: ', len(lista_ech2), '\nech 3: ', len(lista_ech3), '\nech 4: ', len(lista_ech4))
 print('--------------------------')
 print('Total: ', len(lista_ech1) + len(lista_ech2) + len(lista_ech3) + len(lista_ech4))
@@ -207,27 +223,34 @@ for i in range(0, max_rows):
         lol_transfer.append(wb.active.cell(row=i+1, column=j+1).value)
     lol_program.append(lol_transfer)
 
-for i in range(0, len(lol_program)):
-    print(lol_program[i])
+#caut schimbul celor care lucreaza in tura continua
+schimb = searchTeamShift(data_lucru, 'ECHIPA 1')
+pontajEchipe(schimb, lista_ech1)
+schimb = searchTeamShift(data_lucru, 'ECHIPA 2')
+pontajEchipe(schimb, lista_ech2)
+schimb = searchTeamShift(data_lucru, 'ECHIPA 3')
+pontajEchipe(schimb, lista_ech3)
+schimb = searchTeamShift(data_lucru, 'ECHIPA 4')
+pontajEchipe(schimb, lista_ech4)
 
-for i in range(0, len(lista_ech1)):
-    print(lista_ech1[i])
-input('baga enter')
+#listareMatrice(lista_ech1)
+#listareMatrice(lista_ech2)
+#listareMatrice(lista_ech3)
+#listareMatrice(lista_ech4)
 
+#listareMatrice(lista_sch1)
 
-data_pontaj = ''
-for i in range(0, len(lol_program)):
-    if lol_program[i][0] == data_lucru:
-        data_pontaj = str(lol_program[i][1])
-        print('victorieeeee', lol_program[i])
-print('data pontaj: ', data_pontaj)
+addTeamShiftsToLists(lista_ech1, lista_sch1, lista_sch2, lista_sch3)
+addTeamShiftsToLists(lista_ech2, lista_sch1, lista_sch2, lista_sch3)
+addTeamShiftsToLists(lista_ech3, lista_sch1, lista_sch2, lista_sch3)
+addTeamShiftsToLists(lista_ech4, lista_sch1, lista_sch2, lista_sch3)
 
-for i in range(len(lista_ech1)):
-    lista_ech1[i][2] = data_pontaj
+#listareMatrice(lista_sch1)
 
-for i in range(0, len(lista_ech1)):
-    print(lista_ech1[i])
-input('baga enter')
+#Listez situatia pe schimburi si echipe
+print('\nsch 1: ', len(lista_sch1), '\nsch 2: ', len(lista_sch2), '\nsch 3: ', len(lista_sch3))
+print('--------------------------')
+print('Total: ', len(lista_sch1) + len(lista_sch2) + len(lista_sch3))
 
 input("baga enter inainte de scrierea datelor in fisier")
 
@@ -235,8 +258,8 @@ input("baga enter inainte de scrierea datelor in fisier")
 print(Fore.LIGHTCYAN_EX + '\nIncarca formularul pentru pontaj...')
 wb_formular = Workbook()
 #load_formular = openFile_XLSX('../Formular_pontaj_zilnic')
-wb_formular = loadExcel('FORMULAR_PONTAJ_SG.XLSX')
-print('Sheet activ formular', wb_formular.active)
+wb_formular = loadExcel('FORMULAR_PONTAJ_SG.xlsx')
+#print('Sheet activ formular', wb_formular.active)
 
 #Sch 1
 wb_formular.active = 0
@@ -263,6 +286,7 @@ for i in range(0, len(lista_sch3)):
     wb_formular.active.cell(row=i+6, column=2).value = lista_sch3[i][1]
 
 #salvez fisierul pe disc
+wb_formular.active = 0
 file_name_pontaj = 'FORMULAR_PONTAJ_SG_' + data_lucru + '.XLSX'
 wb_formular.save(file_name_pontaj)
 print('\nAm salvat fisierul de pontaj: ', Fore.GREEN + file_name_pontaj , '\n')
