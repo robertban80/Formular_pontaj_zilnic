@@ -18,18 +18,19 @@ now = time.strftime("%H:%M:%S", time.localtime(time.time()))
 
 init(autoreset=True) #resetare automana a culorilor la default
 
+#functia incarca intr-o lista toate fisierele cu extensia xlsx din folderul
+#dat de parametrul de intrare si da posibilitatea utilizatorulu isa aleaga
+#fisierul pe care vrea sa-l prelucreze prin alegerea cifrei corespunzatoare
+#fisierului. Se returneaza sub forma unui str demunirea completa a fisierului
+#ales
+
 def openFile_XLSX(locatie):
-#    print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-#    print('+                  Alege fisierul dorit                            +')
-#    print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
     print('\nFolederul curent este:\n', Fore.GREEN + locatie)
     dirs = os.listdir(locatie)
 
     lista_files = []
     for files in dirs:
         lista_files.append(files)
-#    print('\n', lista_files)
-#   scot doar fisierele Excel
     lista_files_xlsx = [s for s in lista_files if ('.xlsx' or '.XLSX') in s]
     nr_xls = len(lista_files_xlsx)
     print('\nIn folderul curent sunt ', Fore.GREEN + str(nr_xls), ' fisiere Excel...')
@@ -63,7 +64,10 @@ def openFile_XLSX(locatie):
     
     load = lista_files_xlsx[inp2-1]
     return load
-    
+
+ #functia incarca fisierul ales si-l asociaza unui obiect openpyxl. Se returneaza
+ #obiectul openpyxl
+
 def loadExcel(fisier_excel):    
     print(Fore.RED + '\nPutina rabdare, lucrez din greu...')
     wb = openpyxl.load_workbook(fisier_excel)
@@ -74,7 +78,10 @@ def loadExcel(fisier_excel):
     print('-----------------------------------------------------------------')
     return wb
 
-def currentDate():
+#functia permite utilizatorului sa aleaga data pentru care doreste prelucrarea.
+#Se returneaza data sub forma unui str de forna zz.ll.aaaa
+
+def workDate():
     data_curenta = datetime.datetime.now().strftime("%d.%m.%Y")
     luna_curenta = datetime.datetime.now().month
     anul_curent = datetime.datetime.now().year
@@ -88,22 +95,24 @@ def currentDate():
     print('\nZiua selectata este: ', Fore.LIGHTYELLOW_EX + str(my_date.strftime("%d.%m.%Y")), '\n')
     return str(my_date.strftime("%d.%m.%Y"))
 
+#functia returneaza saptamana din anul calendaristic in functie de cele trei elemente
+#de intare, anul, luna respectic ziua. Returneaza un obiect de tip str
+
 def currentWeekOfYear(year, month, day):
     return datetime.date(year, month, day).isocalendar()[1]
 
-def searchShift(schimb):
+#functia returneaza o matrice cu toti operatorii dintr-un anumit schimb in functie de 
+#lista de intrare si parametrul de tip str care contine schimbul. 
+
+def searchShift(lista, schimb):
     lista_schimb = []
-    for i in range(1, len(lol_transport)):
-        if lol_transport[i][2] == schimb:
-            lista_schimb.append(lol_transport[i])
+    for i in range(1, len(lista)):
+        if lista[i][2] == schimb:
+            lista_schimb.append(lista[i])
     return lista_schimb
 
-def searchTeam(echipa):
-    lista_echipa = []
-    for i in range(1, len(lol_transport)):
-        if lol_transport[i][2] == echipa:
-            lista_echipa.append(lol_transport[i])
-    return lista_echipa
+#functia cauta schimbul echipei pentru data de lucru data ca parametru de intrare. Returneaza
+#schimbul sub forma unui str
 
 def searchTeamShift(data_lucru, echipa):
     schimb = ''
@@ -119,9 +128,13 @@ def searchTeamShift(data_lucru, echipa):
                 schimb = str(lol_program[i][4])
     return schimb
 
+#functia modifica schimbul celor care se afla in lista data ca parametru de intrare.
+
 def pontajEchipe(schimb, lista_echipa):
     for i in range(len(lista_echipa)):
         lista_echipa[i][2] = schimb
+
+#functia adauga(concateneaza doua liste) lista echipei la listele aferente schiburilor
 
 def addTeamShiftsToLists(lista_echipa, lista_sch1, lista_sch2, lista_sch3):
     if lista_echipa[0][2] == '1':
@@ -131,11 +144,13 @@ def addTeamShiftsToLists(lista_echipa, lista_sch1, lista_sch2, lista_sch3):
     elif lista_echipa[0][2] == '3':
         lista_sch3.extend(lista_echipa)
 
+#functie listeaza o matrice pe randuri. Elementul de intrare e lista pe care vrem s-o 
+#afisam 'frumos'
+
 def listareMatrice(lol):
     for i in range(0, len(lol)):
         print(lol[i])
     input('\nApasa ENTER pentru continuare\n')
-#def writeShiftsToXLSX(shift):
     
 #corpul principal al scriptului
 wb = Workbook()
@@ -152,14 +167,11 @@ print(Fore.LIGHTCYAN_EX + 'Incarca fisierul de transport...')
 load_file = openFile_XLSX('../Formular_pontaj_zilnic')
 
 wb = loadExcel(load_file)
-#print(Fore.LIGHTYELLOW_EX + currentDate())
-data_lucru = currentDate()
-#print(Fore.LIGHTYELLOW_EX + data_lucru)
-#print(wb.active)
+data_lucru = workDate()
 
+#scot intr-o matrice pe toti operatorii care se afla in fisierul de transport: marca + nume
 lol_transport = []
 wb.active = 0
-#wb_new = Workbook()
 max_rows = wb.active.max_row
 max_cols = wb.active.max_column
 for i in range(0, max_rows):
@@ -168,7 +180,8 @@ for i in range(0, max_rows):
         lol_transfer.append(wb.active.cell(row=i+1, column=j+1).value)
     lol_transport.append(lol_transfer)
 
-#caut saptamana curenta din an
+#caut saptamana de lucru in fisierul de transport pentru a putea extrage informatiile 
+#referitoare la transport. Indexul coloanei de stocheaza intr-un str
 
 sapt_curenta_upper = 'WK' + str(currentWeekOfYear(int(data_lucru[6:]), int(data_lucru[3:5]), int(data_lucru[:2])))
 sapt_curenta_low = 'wk' + str(currentWeekOfYear(int(data_lucru[6:]), int(data_lucru[3:5]), int(data_lucru[:2])))
@@ -178,25 +191,20 @@ for i in range(0, max_rows):
         print('Pentru ', Fore.LIGHTYELLOW_EX + data_lucru, 'se aplica transportul pt saptamana ', Fore.LIGHTYELLOW_EX + str(wb.active.cell(row=1, column=i+1).value))
         index_coloana = i + 1
 
+#inserez inca o coloana in matricea de transport cu datele cu schimbul fiecaruia pentru 
+#saptamana de lucru
+
 for i in range(0, max_rows):
     lol_transport[i].append(str(wb.active.cell(row=i+1, column=index_coloana).value))
 
-#input('baga enter...')
 
-#listez sub forma de matrice
-#for i in range(0, len(lol_transport)):
-#    print(lol_transport[i], '\n')
-
-#print("\nNumarul de persoane in fisierul de transport: ", Fore.GREEN + str(len(lol_transport)-1))
-
-lista_sch1 = searchShift('1')
-lista_sch2 = searchShift('2')
-lista_sch3 = searchShift('3')
-
-lista_ech1 = searchTeam('ECHIPA 1')
-lista_ech2 = searchTeam('ECHIPA 2')
-lista_ech3 = searchTeam('ECHIPA 3')
-lista_ech4 = searchTeam('ECHIPA 4')
+lista_sch1 = searchShift(lol_transport, '1')
+lista_sch2 = searchShift(lol_transport, '2')
+lista_sch3 = searchShift(lol_transport, '3')
+lista_ech1 = searchShift(lol_transport, 'ECHIPA 1')
+lista_ech2 = searchShift(lol_transport, 'ECHIPA 2')
+lista_ech3 = searchShift(lol_transport, 'ECHIPA 3')
+lista_ech4 = searchShift(lol_transport, 'ECHIPA 4')
 
 #Listez situatia pe schimbut=ri si echipe
 print('\nsch 1: ', len(lista_sch1), '\nsch 2: ', len(lista_sch2), '\nsch 3: ', len(lista_sch3))
@@ -233,19 +241,10 @@ pontajEchipe(schimb, lista_ech3)
 schimb = searchTeamShift(data_lucru, 'ECHIPA 4')
 pontajEchipe(schimb, lista_ech4)
 
-#listareMatrice(lista_ech1)
-#listareMatrice(lista_ech2)
-#listareMatrice(lista_ech3)
-#listareMatrice(lista_ech4)
-
-#listareMatrice(lista_sch1)
-
 addTeamShiftsToLists(lista_ech1, lista_sch1, lista_sch2, lista_sch3)
 addTeamShiftsToLists(lista_ech2, lista_sch1, lista_sch2, lista_sch3)
 addTeamShiftsToLists(lista_ech3, lista_sch1, lista_sch2, lista_sch3)
 addTeamShiftsToLists(lista_ech4, lista_sch1, lista_sch2, lista_sch3)
-
-#listareMatrice(lista_sch1)
 
 #Listez situatia pe schimburi si echipe
 print('\nsch 1: ', len(lista_sch1), '\nsch 2: ', len(lista_sch2), '\nsch 3: ', len(lista_sch3))
