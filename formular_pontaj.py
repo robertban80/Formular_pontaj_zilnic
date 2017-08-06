@@ -207,9 +207,9 @@ lista_ech3 = searchShift(lol_transport, 'ECHIPA 3')
 lista_ech4 = searchShift(lol_transport, 'ECHIPA 4')
 
 #Listez situatia pe schimbut=ri si echipe
-print('\nsch 1: ', len(lista_sch1), '\nsch 2: ', len(lista_sch2), '\nsch 3: ', len(lista_sch3))
-print('--------------------------')
-print('Total: ', len(lista_sch1) + len(lista_sch2) + len(lista_sch3))
+#print('\nsch 1: ', len(lista_sch1), '\nsch 2: ', len(lista_sch2), '\nsch 3: ', len(lista_sch3))
+#print('--------------------------')
+#print('Total: ', len(lista_sch1) + len(lista_sch2) + len(lista_sch3))
 print('\nech 1: ', len(lista_ech1), '\nech 2: ', len(lista_ech2), '\nech 3: ', len(lista_ech3), '\nech 4: ', len(lista_ech4))
 print('--------------------------')
 print('Total: ', len(lista_ech1) + len(lista_ech2) + len(lista_ech3) + len(lista_ech4))
