@@ -45,13 +45,13 @@ def openFile_XLSX(locatie):
             x += 1
             print('[', x ,'] ', lista_files_xlsx[x-1])
 
-        print('\nAlege indexul fisierul [de la 1 la',nr_xls,']: ')
+        print('\nAlege indexul fisierul [de la 1 la', nr_xls,']: ')
         print('Trebuie sa fie un fisier cu extensia . XLSX !')
         inp = input()
         inp2 = int(inp)
 
         while inp2 not in range(1, nr_xls+1):
-            print('\nIndexul ',Fore.RED + str(inp2),' nu exista! Ruleaza din nou si alege alt fisier!')
+            print('\nIndexul ', Fore.RED + str(inp2), ' nu exista! Ruleaza din nou si alege alt fisier!')
             input('Apasa ENTER pentru iesire!')
             sys.exit()
 
@@ -59,24 +59,23 @@ def openFile_XLSX(locatie):
     print('\nDaca NU vrei sa pastrezi fisierul, apasa tasta <n> + ENTER ! ')
     inp_str = input('\nPentru continuare apasa ENTER!')
 
-    while inp_str in ['N','n']:
+    while inp_str in ['N', 'n']:
         sys.exit('\nRuleaza din nou si alege alt fisier!')
-    
     load = lista_files_xlsx[inp2-1]
     return load
 
  #functia incarca fisierul ales si-l asociaza unui obiect openpyxl. Se returneaza
  #obiectul openpyxl
 
-def loadExcel(fisier_excel):    
+def loadExcel(fisier_excel):
     print(Fore.RED + '\nPutina rabdare, lucrez din greu...')
-    wb = openpyxl.load_workbook(fisier_excel)
+    wbook = openpyxl.load_workbook(fisier_excel)
     print('\nFisierul are urmatoarele file: ')
-    sheet_names = wb.get_sheet_names()
+    sheet_names = wbook.get_sheet_names()
     for sheets in sheet_names:
         print(Fore.GREEN + sheets,' ')
     print('-----------------------------------------------------------------')
-    return wb
+    return wbook
 
 #functia permite utilizatorului sa aleaga data pentru care doreste prelucrarea.
 #Se returneaza data sub forma unui str de forna zz.ll.aaaa
@@ -144,7 +143,7 @@ def addTeamShiftsToLists(lista_echipa, lista_sch1, lista_sch2, lista_sch3):
     elif lista_echipa[0][2] == '3':
         lista_sch3.extend(lista_echipa)
 
-#functie listeaza o matrice pe randuri. Elementul de intrare e lista pe care vrem s-o 
+#functie listeaza o matrice pe randuri. Elementul de intrare e lista pe care vrem s-o
 #afisam 'frumos'
 
 def listareMatrice(lol):
@@ -158,8 +157,8 @@ print(Fore.RED + "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 print('+                                                                  +')
 print('+ Script-ul genereaza fisiere cu tabelele de pontaj zilnic pentru  +')
 print('+                 fiecare schimb de la SubGrupuri                  +')
-print('+             Start script... ', str(now),'                           +')
-print(Fore.GREEN + "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+print('+             Start script... ', str(now), '                           +')
+print(Fore.GREEN + "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", Fore.LIGHTYELLOW_EX + "RB\n")
 
 
 print(Fore.LIGHTCYAN_EX + 'Incarca fisierul de transport...')
@@ -191,12 +190,13 @@ for i in range(0, max_rows):
         print('Pentru ', Fore.LIGHTYELLOW_EX + data_lucru, 'se aplica transportul pt saptamana ', Fore.LIGHTYELLOW_EX + str(wb.active.cell(row=1, column=i+1).value))
         index_coloana = i + 1
 
-#inserez inca o coloana in matricea de transport cu datele cu schimbul fiecaruia pentru 
+#inserez inca o coloana in matricea de transport cu schimbul fiecaruia pentru 
 #saptamana de lucru
 
 for i in range(0, max_rows):
     lol_transport[i].append(str(wb.active.cell(row=i+1, column=index_coloana).value))
 
+listareMatrice(lol_transport)
 
 lista_sch1 = searchShift(lol_transport, '1')
 lista_sch2 = searchShift(lol_transport, '2')
@@ -231,6 +231,10 @@ for i in range(0, max_rows):
         lol_transfer.append(wb.active.cell(row=i+1, column=j+1).value)
     lol_program.append(lol_transfer)
 
+listareMatrice(lol_program)
+
+listareMatrice(lista_ech4)
+
 #caut schimbul celor care lucreaza in tura continua
 schimb = searchTeamShift(data_lucru, 'ECHIPA 1')
 pontajEchipe(schimb, lista_ech1)
@@ -240,6 +244,12 @@ schimb = searchTeamShift(data_lucru, 'ECHIPA 3')
 pontajEchipe(schimb, lista_ech3)
 schimb = searchTeamShift(data_lucru, 'ECHIPA 4')
 pontajEchipe(schimb, lista_ech4)
+
+listareMatrice(lista_ech4)
+
+#compun listele finale pentru salvare in fisier!
+
+
 
 addTeamShiftsToLists(lista_ech1, lista_sch1, lista_sch2, lista_sch3)
 addTeamShiftsToLists(lista_ech2, lista_sch1, lista_sch2, lista_sch3)
